@@ -1,0 +1,158 @@
+import { postRequest } from "../../../../../src/utils/validationUtils";
+import {
+  STATUS_CODE,
+  MESSAGE,
+  STATUS,
+  TYPE_OF_USER,
+} from "../../../../../src/constants/constant";
+import { Request, Response } from "express";
+import { Admin } from "../../models/admin.model";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config({ path: "../../../../../env/.env" });
+interface Field {
+  name: string;
+  type: "string" | "number" | "boolean"; // Adjust as needed for other types
+}
+
+export async function register(req: Request, res: Response): Promise<any> {
+  try {
+    const requiredFields: Field[] = [
+      { name: "username", type: "string" },
+      { name: "email", type: "string" },
+      { name: "password", type: "string" },
+      { name: "phone", type: "string" },
+      { name: "phoneCode", type: "string" },
+    ];
+
+    interface ValidationResult {
+      valid: boolean;
+      errorResponse?: {
+        status: number;
+        message: string;
+        success: boolean;
+      };
+    }
+    const validationResult = postRequest(req, res, requiredFields);
+
+    if (!validationResult.valid) {
+      return res.status(validationResult.errorResponse?.status ?? 200).json({
+        message: validationResult.errorResponse?.message,
+        success: validationResult.errorResponse?.success,
+      });
+    }
+
+    const {
+      username,
+      email,
+      password,
+      phone,
+      phoneCode,
+      registrationMode = 0,
+    } = req.body;
+    // Check if the user already exists
+    const existingUserEmail = await Admin.findOne({ email });
+    if (existingUserEmail) {
+      return res
+        .status(STATUS_CODE.SUCCESS)
+        .json({ message: MESSAGE.Email_already_exists, success: STATUS.False });
+    }
+
+    const existingUserPhone = await Admin.findOne({ phone, phoneCode });
+    if (existingUserPhone) {
+      return res
+        .status(STATUS_CODE.SUCCESS)
+        .json({ message: MESSAGE.Phone_already_exists, success: STATUS.False });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user with the provided information
+    const newUser = new Admin({
+      username,
+      email,
+      password: hashedPassword,
+      phone,
+      phoneCode,
+      registrationMode,
+    });
+
+    await newUser.save();
+
+    return res.status(STATUS_CODE.SUCCESS).json({
+      message: MESSAGE.Registration_successfully,
+      success: STATUS.True,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(STATUS_CODE.ERROR)
+      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False }); // Added internal server error response code
+  }
+}
+
+export async function login(req: Request, res: Response): Promise<any> {
+  try {
+    const requiredFields: Field[] = [
+      { name: "email", type: "string" },
+      { name: "password", type: "string" },
+    ];
+
+    const validationResult = postRequest(req, res, requiredFields);
+
+    if (!validationResult.valid) {
+      return res.status(validationResult.errorResponse?.status ?? 200).json({
+        message: validationResult.errorResponse?.message,
+        success: validationResult.errorResponse?.success,
+      });
+    }
+
+    const { email, password } = req.body;
+
+    const user = await Admin.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(STATUS_CODE.SUCCESS)
+        .json({ message: MESSAGE.User_not_found, success: STATUS.False });
+    }
+
+    if (user.isApprove == 0) {
+      return res
+        .status(STATUS_CODE.SUCCESS)
+        .json({ message: MESSAGE.Youre_unapproved, success: STATUS.False });
+    }
+
+    if (!user.validPassword(password)) {
+      return res
+        .status(STATUS_CODE.SUCCESS)
+        .json({ message: MESSAGE.Invalid_password, success: STATUS.False });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error(
+        `JWT_SECRET ${MESSAGE.Environment_variable_is_not_defined}`
+      );
+    }
+
+    const accessToken = jwt.sign(
+      { uid: user._id.toHexString(), type: TYPE_OF_USER.ADMIN },
+      process.env.JWT_SECRET
+    );
+
+    await Admin.findByIdAndUpdate({ _id: user._id }, { isLogin: true });
+
+    res.status(STATUS_CODE.SUCCESS).json({
+      accessToken,
+      message: MESSAGE.Login_successful,
+      success: STATUS.True,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(STATUS_CODE.ERROR)
+      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+  }
+}
