@@ -29,8 +29,8 @@ export interface UserDocument extends Document {
   isLogin: boolean;
   buySubscriptionList: {
     subscriptionId: mongoose.Schema.Types.ObjectId;
-    stripeSeddioId: string;
     paymentStatus: number;
+    stripesubscriptionId: string;
   }[];
   validPassword(password: string): boolean; // Define the custom method
 }
@@ -59,7 +59,16 @@ const UserSchema: Schema<UserDocument> = new Schema(
         twiml_url: "",
       },
     },
-    buySubscriptionList: [{ subscriptionId: {type:mongoose.Schema.Types.ObjectId,required: true},  stripeSeddioId: { type: String, required: true },  paymentStatus: { type: Number, required: true }, }],
+    buySubscriptionList: [
+      {
+        subscriptionId: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+        },
+        paymentStatus: { type: Number, required: true },
+        stripesubscriptionId: { type: String, default: "" },
+      },
+    ],
   },
   {
     timestamps: true,

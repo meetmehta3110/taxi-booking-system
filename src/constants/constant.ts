@@ -34,6 +34,11 @@ export enum MESSAGE {
   Sms_send_successfully = "Sms send successfully 😀",
   Envalide_subscription = "Envalide subscription 🤬",
   Envalide_priceId = "Envalide priceId 🤬",
+  Card_deleted = "Card deleted 😀",
+  change_defaul_card = "Change Default Card Successfully 😀",
+  Error_fetching_cards_for_customer = "Error fetching cards for customer 🤬",
+  Subscription_Buy_Successfully = "🎉 Subscription_Buy_Successfully 🎉",
+  Pleace_add_card_first = "Pleace add card first 🤬",
 }
 
 export enum STATUS {

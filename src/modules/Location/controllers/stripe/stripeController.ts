@@ -10,9 +10,8 @@ import { Price, PriceDocument } from "../../models/price.model";
 import { Setting, SettingnDocument } from "../../models/setting.model";
 import { error } from "console";
 import { User, UserDocument } from "../../models/user.model";
-import { buySubscription } from "../../../../utils/util";
+import { buySubscription, getAllCards } from "../../../../utils/util";
 dotenv.config({ path: "../../../../../env/.env" });
-import { ObjectId } from "mongodb";
 interface Field {
   name: string;
   type: "string" | "number" | "boolean" | "object"; // Adjust as needed for other types
@@ -37,7 +36,7 @@ export async function createCheckoutSession(
       });
     }
 
-    let line_items: any = [];
+    let items: any = [];
     const { sid, uid } = req.body;
     const subscription: SubscriptionDocument | null =
       await Subscription.findOne({ _id: sid });
@@ -46,6 +45,24 @@ export async function createCheckoutSession(
       throw error(MESSAGE.Envalide_subscription);
     }
 
+    const findCard: UserDocument | null = await User.findOne(
+      { _id: uid },
+      { _id: 0, stripeCustomerId: 1 }
+    );
+    if (!findCard) {
+      return res.status(STATUS_CODE.ERROR).json({
+        message: MESSAGE.Internal_server_error,
+        success: STATUS.False,
+      });
+    }
+    const getCard = await getAllCards(findCard.stripeCustomerId);
+
+    if (getCard.length == 0) {
+      return res.status(STATUS_CODE.SUCCESS).json({
+        message: MESSAGE.Pleace_add_card_first,
+        success: STATUS.False,
+      });
+    }
     const promises = subscription.service.map(async (subscription: any) => {
       const price: PriceDocument | null = await Price.findById(
         { _id: subscription.priceId },
@@ -56,7 +73,7 @@ export async function createCheckoutSession(
         throw error(MESSAGE.Envalide_priceId);
       }
 
-      line_items.push({
+      items.push({
         price: price.priceId,
         quantity: subscription.requestLimit,
       });
@@ -77,29 +94,27 @@ export async function createCheckoutSession(
     const setting: SettingnDocument | null = await Setting.findOne({});
     if (setting && setting.stripe_secret_key != "") {
       const stripe = require("stripe")(setting.stripe_secret_key);
+      console.log(user.stripeCustomerId);
 
-      const session = await stripe.checkout.sessions.create({
+      const session = await stripe.subscriptions.create({
         customer: user.stripeCustomerId,
-        success_url: setting.paymentSuccessUrl,
-        cancel_url: setting.paymentCancelUrl,
-        line_items,
+        items,
         metadata: {
           subscriptionId: sid,
           uid: uid,
         },
-        mode: "subscription",
       });
 
       // get id, save to user, return url
-      const sessionId = session.id;
+      const stripesubscriptionId = session.id;
 
-      console.log(session);
+      console.log(stripesubscriptionId);
 
       // save session.id to the user in your database
 
       const newSubscription = {
         subscriptionId: sid,
-        stripeSeddioId: sessionId,
+        stripesubscriptionId,
         paymentStatus: 0,
       };
       await User.findByIdAndUpdate(
@@ -107,7 +122,10 @@ export async function createCheckoutSession(
         { $push: { buySubscriptionList: newSubscription } }
       );
 
-      res.json({ url: session.url });
+      res.status(STATUS_CODE.SUCCESS).json({
+        message: MESSAGE.Subscription_Buy_Successfully,
+        success: STATUS.True,
+      });
     } else {
       return res
         .status(STATUS_CODE.SUCCESS)
@@ -124,32 +142,33 @@ export async function createCheckoutSession(
 export async function webhook(req: Request, res: Response): Promise<any> {
   try {
     const payload = req.body;
-    const sessioId = payload.data.object.id;
+    const payloadType = payload.type;
     const status = payload.data.object.status;
-    const subscriptionId = payload.data.object.metadata.subscriptionId;
-    const uid = payload.data.object.metadata.uid;
-    const sub = payload.data.object.subscription_details;
-    console.log({ sessioId });
-    console.log({ sub });
-    console.log(payload);
-
-    if (status == "complete") {
+    const StripeSubscriptionId = payload.data.object.subscription;
+    const subscriptionId =
+      payload.data.object.subscription_details.metadata.subscriptionId;
+    const uid = payload.data.object.subscription_details.metadata.uid;
+    console.log(payloadType);
+    if (payloadType == "invoice.payment_succeeded" && status == "paid") {
       const query = {
         _id: uid,
-        "buySubscriptionList.stripeSeddioId": sessioId,
+        "buySubscriptionList.stripesubscriptionId": StripeSubscriptionId,
       };
 
       // Define the update operation
       const update = {
-        $set: { "buySubscriptionList.$.paymentStatus": 1 }, // Update paymentStatus to 1 for the matched subscription
+        $inc: { "buySubscriptionList.$.paymentStatus": 1 }, // Increment paymentStatus by 1 for the matched subscription
       };
 
       await buySubscription(uid, subscriptionId);
       await User.findOneAndUpdate(query, update);
+      res.status(200).end();
     }
-    res.status(200).end();
   } catch (err) {
-    console.error("Error handling webhook event:", err);
-    res.status(400).end();
+    console.log(err);
+
+    return res
+      .status(STATUS_CODE.ERROR)
+      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
   }
 }

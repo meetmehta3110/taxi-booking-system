@@ -23,7 +23,7 @@ import os from "os";
 import multer from "multer";
 import path from "path";
 import { ObjectId } from "mongodb";
-import { User } from "../modules/Location/models/user.model";
+import { error } from "console";
 export async function addIntoRequest(add: any): Promise<void> {
   const newReq = new Request(add);
   await newReq.save();
@@ -121,7 +121,6 @@ export async function updateSubscriptionToUserTable(
   serviceData: any,
   day: number
 ): Promise<number> {
-
   let endDate = new Date(data.endDate);
   endDate.setDate(endDate.getDate() + day);
   data.maxLimit += serviceData.requestLimit;
@@ -325,5 +324,78 @@ export async function stripe_add_price(
     return { status: STATUS.True, id: price.id };
   } else {
     return { status: STATUS.False, id: "" };
+  }
+}
+
+export async function getAllCards(customerId: string) {
+  try {
+    const setting: SettingnDocument | null = await Setting.findOne({});
+    if (!setting) {
+      throw error(MESSAGE.Add_stript_key);
+    }
+    const stripe = require("stripe")(setting.stripe_secret_key);
+
+    const customer = await stripe.customers.retrieve(customerId, {
+      expand: ["sources.data"],
+    });
+
+    const cards = customer.sources.data.filter(
+      (source: any) => source.object === "card"
+    );
+    return cards;
+  } catch (error) {
+    console.error(
+      MESSAGE.Error_fetching_cards_for_customer + customerId,
+      error
+    );
+    throw error;
+  }
+}
+
+export async function deleteCard(customerId: string, cardId: string) {
+  try {
+    const setting: SettingnDocument | null = await Setting.findOne({});
+    if (!setting) {
+      throw error(MESSAGE.Add_stript_key);
+    }
+    const stripe = require("stripe")(setting.stripe_secret_key);
+
+    const deletedCard = await stripe.customers.deleteSource(customerId, cardId);
+
+    return deletedCard;
+  } catch (error) {
+    console.log(error);
+
+    throw error;
+  }
+}
+
+export async function changeDefaultCard(customerId: string, newCardId: string) {
+  const setting: SettingnDocument | null = await Setting.findOne({});
+  if (!setting) {
+    throw error(MESSAGE.Add_stript_key);
+  }
+  const stripe = require("stripe")(setting.stripe_secret_key);
+
+  await stripe.customers.update(customerId, {
+    default_source: newCardId,
+  });
+}
+
+export async function addTestCardToCustomer(customerId: string, token: any) {
+  try {
+    const setting: SettingnDocument | null = await Setting.findOne({});
+    if (!setting) {
+      throw error(MESSAGE.Add_stript_key);
+    }
+    const stripe = require("stripe")(setting.stripe_secret_key);
+
+    const source = await stripe.customers.createSource(customerId, {
+      source: "tok_visa",
+    });
+    return source;
+  } catch (error) {
+    console.log(MESSAGE.Internal_server_error, error);
+    throw error;
   }
 }
