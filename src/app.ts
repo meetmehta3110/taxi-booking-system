@@ -12,7 +12,7 @@ import { connectToDB } from "./config/mongoose";
  * @returns {Promise<void>} A Promise that resolves when the initialization process is complete.
  */
 const init = async (): Promise<void> => {
-  // Connect to MongoDb
+  // Connect to MongoDB
   await connectToDB();
 
   // Import necessary modules
