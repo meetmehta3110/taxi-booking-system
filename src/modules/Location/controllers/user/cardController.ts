@@ -1,8 +1,9 @@
 import { postRequest } from "../../../../../src/utils/validationUtils";
 import {
   STATUS_CODE,
-  MESSAGE,
+  code,
   STATUS,
+  server_log,
 } from "../../../../../src/constants/constant";
 import { Request, Response } from "express";
 import dotenv from "dotenv";
@@ -26,7 +27,7 @@ export async function remove(req: Request, res: Response): Promise<any> {
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -37,13 +38,13 @@ export async function remove(req: Request, res: Response): Promise<any> {
       .then((deletedCard) => {
         return res
           .status(STATUS_CODE.SUCCESS)
-          .json({ message: MESSAGE.Card_deleted, success: STATUS.True });
+          .json({ code: code.Card_deleted, success: STATUS.True });
       })
       .catch((error) => {
         console.log(error);
 
         return res.status(STATUS_CODE.ERROR).json({
-          message: MESSAGE.Internal_server_error,
+          code: code.Internal_server_error,
           success: STATUS.False,
         });
       });
@@ -51,7 +52,7 @@ export async function remove(req: Request, res: Response): Promise<any> {
     console.log(err);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 export async function setdefault(req: Request, res: Response): Promise<any> {
@@ -65,7 +66,7 @@ export async function setdefault(req: Request, res: Response): Promise<any> {
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -75,14 +76,14 @@ export async function setdefault(req: Request, res: Response): Promise<any> {
     await changeDefaultCard(stripeCustomerId, stripeCardId);
 
     return res.status(200).json({
-      message: MESSAGE.change_defaul_card,
+      code: code.change_defaul_card,success:STATUS.True
     });
   } catch (err) {
     console.log(err);
 
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
@@ -98,7 +99,7 @@ export async function get(req: Request, res: Response): Promise<any> {
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -106,14 +107,14 @@ export async function get(req: Request, res: Response): Promise<any> {
     getAllCards(stripeCustomerId).then(async (cards) => {
       const setting: SettingnDocument | null = await Setting.findOne({});
       if (!setting) {
-        throw error(MESSAGE.Add_stript_key);
+        throw error(server_log.Add_stript_key);
       }
       const stripe = require("stripe")(setting.stripe_secret_key);
 
       const customer = await stripe.customers.retrieve(stripeCustomerId);
       const isDefaultCard = customer.default_source;
       return res.status(STATUS_CODE.SUCCESS).json({
-        message: MESSAGE.Request_process_successfully,
+        code: code.Request_process_successfully,
         data: { cards: cards, defaultCard: isDefaultCard },
         success: STATUS.True,
       });
@@ -122,7 +123,7 @@ export async function get(req: Request, res: Response): Promise<any> {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False }); // Added internal server error response code
+      .json({ code: code.Internal_server_error, success: STATUS.False }); // Added internal server error response code
   }
 }
 
@@ -137,7 +138,7 @@ export async function add(req: Request, res: Response): Promise<any> {
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -145,13 +146,13 @@ export async function add(req: Request, res: Response): Promise<any> {
     let card = await addTestCardToCustomer(stripeCustomerId, "");
     if (card) {
       return res.status(STATUS_CODE.SUCCESS).json({
-        message: MESSAGE.Request_process_successfully,
+        code: code.Request_process_successfully,
         data: card,
         success: STATUS.True,
       });
     } else {
       return res.status(422).json({
-        message: MESSAGE.Internal_server_error,
+        code: code.Internal_server_error,
         success: STATUS.False,
       });
     }
@@ -159,6 +160,6 @@ export async function add(req: Request, res: Response): Promise<any> {
     console.log(error);
     res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

@@ -4,11 +4,12 @@ import jwt from "jsonwebtoken";
 import {
   TYPE_OF_USER,
   ROUTES,
-  MESSAGE,
+  code,
   STATUS_CODE,
   STATUS,
+  server_log
 } from "../constants/constant";
-// Retrieves the JWT secret from the environment variables and checks if it is defined.If the JWT secret is not defined, it returns a 500 status with an error message.
+// Retrieves the JWT secret from the environment variables and checks if it is defined.If the JWT secret is not defined, it returns a 500 status with an error code.
 const { ENCRYPTION_KEY } = process.env as { ENCRYPTION_KEY: string };
 
 // Common request and response middleware
@@ -18,7 +19,7 @@ export const commonMiddleware = (
   next: NextFunction
 ): void => {
   // Perform any processing on the request object here
-  console.log("Request URL:", req.url);
+  console.log(server_log.Request_URL, req.url);
 
   // Set common headers or properties on the response object
   res.setHeader("X-Powered-By", "express");
@@ -35,7 +36,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
     const resultMatch = /\/([^\/]*)/.exec(req.path);
 
     if (resultMatch != null) {
-      if (resultMatch[1] == ROUTES.User_without_login || (resultMatch[1] == ROUTES.Images_access ) || (resultMatch[1] == ROUTES.Stripe_access ))  {
+      if (resultMatch[1] == ROUTES.User_without_login || (resultMatch[1] == ROUTES.Images_access ) || (resultMatch[1] == ROUTES.Stripe_access ) || (resultMatch[1] == ROUTES.languages_access ))  {
         next();
       } else if (authHeader) {
         const token = authHeader.split(" ")[1];
@@ -53,7 +54,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
                 resultMatch[1] === ROUTES.Admin_services_access)
             ) {
               res.status(STATUS_CODE.SUCCESS).json({
-                message: MESSAGE.Un_authorization_access,
+                code: code.Un_authorization_access,
                 success: STATUS.False,
               });
             } else {
@@ -70,7 +71,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
       } else {
         // If no Authorization header is present
         res.status(STATUS_CODE.SUCCESS).json({
-          message: MESSAGE.Authorization_header_missing,
+          code: code.Authorization_header_missing,
           success: STATUS.False,
         });
       }
@@ -78,7 +79,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
   } catch (err) {
     res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Middleware_error, success: STATUS.False });
+      .json({ code: code.Middleware_error, success: STATUS.False });
   }
 };
 

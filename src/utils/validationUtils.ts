@@ -1,4 +1,4 @@
-import  {STATUS_CODE , MESSAGE ,STATUS }  from "../../src/constants/constant";
+import  {STATUS_CODE , code ,STATUS }  from "../../src/constants/constant";
 import { Request, Response } from 'express';
 
 
@@ -12,7 +12,7 @@ interface ValidationResult {
     valid: boolean;
     errorResponse?: {
         status: number;
-        message: string;
+        code: number;
         success: number;
     };
 }
@@ -26,7 +26,7 @@ export const postRequest = (req:Request, res:Response, fields: Field[]): Validat
                 valid: false,
                 errorResponse: {
                     status: STATUS_CODE.ERROR,
-                    message: MESSAGE.Invalid_or_missing_parameter + name,
+                    code: code.Invalid_or_missing_parameter,
                     success : STATUS.False
                 },
             };
@@ -44,7 +44,7 @@ export const getRequest = (req: Request, res: Response, fields: Field[]): Valida
                 valid: false,
                 errorResponse: {
                     status: STATUS_CODE.ERROR,
-                    message: MESSAGE.Invalid_or_missing_parameter + name,
+                    code: code.Invalid_or_missing_parameter,
                     success: STATUS.False
                 },
             };

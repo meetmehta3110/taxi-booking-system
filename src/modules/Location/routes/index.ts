@@ -8,6 +8,7 @@ import subscription from "./subscription";
 import admin from "./admin";
 import images from "./images";
 import stripe from "./stripe";
+import languages from "./languages";
 
 
 router.use("/", userRoutes);
@@ -18,4 +19,5 @@ router.use("/", subscription);
 router.use("/", admin);
 router.use("/", images);
 router.use("/", stripe);
+router.use("/", languages);
 export default router;

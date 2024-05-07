@@ -1,4 +1,4 @@
-import { STATUS_CODE, MESSAGE, STATUS } from "../../../../constants/constant";
+import { STATUS_CODE, code, STATUS, server_log } from "../../../../constants/constant";
 import { Request, Response } from "express";
 import {
   Subscription,
@@ -31,7 +31,7 @@ export async function createCheckoutSession(
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -42,7 +42,7 @@ export async function createCheckoutSession(
       await Subscription.findOne({ _id: sid });
 
     if (!subscription) {
-      throw error(MESSAGE.Envalide_subscription);
+      throw error(server_log.Envalide_subscription);
     }
 
     const findCard: UserDocument | null = await User.findOne(
@@ -51,7 +51,7 @@ export async function createCheckoutSession(
     );
     if (!findCard) {
       return res.status(STATUS_CODE.ERROR).json({
-        message: MESSAGE.Internal_server_error,
+        code: code.Internal_server_error,
         success: STATUS.False,
       });
     }
@@ -59,7 +59,7 @@ export async function createCheckoutSession(
 
     if (getCard.length == 0) {
       return res.status(STATUS_CODE.SUCCESS).json({
-        message: MESSAGE.Pleace_add_card_first,
+        code: code.Pleace_add_card_first,
         success: STATUS.False,
       });
     }
@@ -70,7 +70,7 @@ export async function createCheckoutSession(
       );
 
       if (!price) {
-        throw error(MESSAGE.Envalide_priceId);
+        throw error(server_log.Envalide_priceId);
       }
 
       items.push({
@@ -88,13 +88,12 @@ export async function createCheckoutSession(
     if (!user) {
       return res
         .status(STATUS_CODE.ERROR)
-        .json({ message: MESSAGE.User_not_found, success: STATUS.False });
+        .json({ code: code.User_not_found, success: STATUS.False });
     }
 
     const setting: SettingnDocument | null = await Setting.findOne({});
     if (setting && setting.stripe_secret_key != "") {
       const stripe = require("stripe")(setting.stripe_secret_key);
-      console.log(user.stripeCustomerId);
 
       const session = await stripe.subscriptions.create({
         customer: user.stripeCustomerId,
@@ -108,7 +107,7 @@ export async function createCheckoutSession(
       // get id, save to user, return url
       const stripesubscriptionId = session.id;
 
-      console.log(stripesubscriptionId);
+    
 
       // save session.id to the user in your database
 
@@ -123,19 +122,19 @@ export async function createCheckoutSession(
       );
 
       res.status(STATUS_CODE.SUCCESS).json({
-        message: MESSAGE.Subscription_Buy_Successfully,
+        code: code.Subscription_Buy_Successfully,
         success: STATUS.True,
       });
     } else {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: MESSAGE.Add_stript_key, success: STATUS.False });
+        .json({ code: code.Add_stript_key, success: STATUS.False });
     }
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
@@ -148,7 +147,6 @@ export async function webhook(req: Request, res: Response): Promise<any> {
     const subscriptionId =
       payload.data.object.subscription_details.metadata.subscriptionId;
     const uid = payload.data.object.subscription_details.metadata.uid;
-    console.log(payloadType);
     if (payloadType == "invoice.payment_succeeded" && status == "paid") {
       const query = {
         _id: uid,
@@ -169,6 +167,6 @@ export async function webhook(req: Request, res: Response): Promise<any> {
 
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

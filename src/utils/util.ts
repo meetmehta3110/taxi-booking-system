@@ -9,7 +9,8 @@ import {
   subscriptionTypes,
   days,
   STATUS,
-  MESSAGE,
+  code,
+  server_log
 } from "../constants/constant";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
@@ -252,7 +253,7 @@ export async function stripe_update_product(
   const setting: SettingnDocument | null = await Setting.findOne({});
   if (setting && setting.stripe_secret_key != "") {
     const stripe = require("stripe")(setting.stripe_secret_key);
-    console.log(update);
+  
 
     const product = await stripe.products.update(productId, update);
     return { status: STATUS.True, id: product.id };
@@ -263,7 +264,7 @@ export async function stripe_update_product(
 
 if (!process.env.DEFAULT_IMAGE_FOLDER) {
   throw new Error(
-    `DEFAULT_IMAGE_FOLDER  ${MESSAGE.Environment_variable_is_not_defined}`
+    `DEFAULT_IMAGE_FOLDER  ${server_log.Environment_variable_is_not_defined}`
   );
 }
 
@@ -331,7 +332,7 @@ export async function getAllCards(customerId: string) {
   try {
     const setting: SettingnDocument | null = await Setting.findOne({});
     if (!setting) {
-      throw error(MESSAGE.Add_stript_key);
+      throw error(server_log.Add_stript_key);
     }
     const stripe = require("stripe")(setting.stripe_secret_key);
 
@@ -344,10 +345,7 @@ export async function getAllCards(customerId: string) {
     );
     return cards;
   } catch (error) {
-    console.error(
-      MESSAGE.Error_fetching_cards_for_customer + customerId,
-      error
-    );
+    console.error(error);
     throw error;
   }
 }
@@ -356,7 +354,7 @@ export async function deleteCard(customerId: string, cardId: string) {
   try {
     const setting: SettingnDocument | null = await Setting.findOne({});
     if (!setting) {
-      throw error(MESSAGE.Add_stript_key);
+      throw error(server_log.Add_stript_key);
     }
     const stripe = require("stripe")(setting.stripe_secret_key);
 
@@ -373,7 +371,7 @@ export async function deleteCard(customerId: string, cardId: string) {
 export async function changeDefaultCard(customerId: string, newCardId: string) {
   const setting: SettingnDocument | null = await Setting.findOne({});
   if (!setting) {
-    throw error(MESSAGE.Add_stript_key);
+    throw error(server_log.Add_stript_key);
   }
   const stripe = require("stripe")(setting.stripe_secret_key);
 
@@ -386,7 +384,7 @@ export async function addTestCardToCustomer(customerId: string, token: any) {
   try {
     const setting: SettingnDocument | null = await Setting.findOne({});
     if (!setting) {
-      throw error(MESSAGE.Add_stript_key);
+      throw error(server_log.Add_stript_key);
     }
     const stripe = require("stripe")(setting.stripe_secret_key);
 
@@ -395,7 +393,7 @@ export async function addTestCardToCustomer(customerId: string, token: any) {
     });
     return source;
   } catch (error) {
-    console.log(MESSAGE.Internal_server_error, error);
+    console.log(server_log.Internal_server_error, error);
     throw error;
   }
 }

@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { MESSAGE } from "./constants/constant";
+import { server_log } from "./constants/constant";
 // Load environment variables from .env file
 dotenv.config({ path: "./env/.env" });
 
@@ -24,12 +24,12 @@ const init = async (): Promise<void> => {
   // Start the server
 
   if (!process.env.PORT) {
-    throw new Error(`PORT ${MESSAGE.Environment_variable_is_not_defined}`);
+    throw new Error(`PORT ${server_log.Environment_variable_is_not_defined}`);
   }
 
   const port = process.env.PORT;
   app.listen(port, async () => {
-    console.log(MESSAGE.Server_is_running_on_port, port);
+    console.log(server_log.Server_is_running_on_port, port);
   });
 };
 

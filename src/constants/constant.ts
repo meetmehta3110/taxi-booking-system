@@ -7,38 +7,35 @@ export enum SERVICES {
   Inc_Usage = 1,
 }
 
-export enum MESSAGE {
-  Registration_successfully = "Registration_Successfully 😀",
-  Email_already_exists = "Email_already_exists 🤬",
-  Phone_already_exists = "Phone_already_exists 🤬",
-  Internal_server_error = "Internal server error 🤬",
-  User_not_found = "User not found 🤬",
-  Login_successful = "Login successful 😀",
-  Youre_unapproved = "You're Unapproved 🤬",
-  Invalid_password = "Invalid password 🤬",
-  Invalid_or_missing_parameter = "🤬 Invalid or missing parameter : ",
-  Invalid_request = "Invalid_Request 🤬",
-  Detail_add_successfully = "Detail Added Successfully 😀",
-  Your_subscriptions_is_over = "Your Subscriptions is over 🤬",
-  Request_process_successfully = "Request Process Successfully 😀",
-  Environment_variable_is_not_defined = "environment variable is not defined 🤬",
-  Server_is_running_on_port = "😀 port",
-  MongoDB_connection_error = "MongoDB connection error 🤬",
-  Twilio_credentials_not_found = "Twilio credentials not found 🤬",
-  Un_authorization_access = "Un Authorization ACCESS 🤬",
-  Authorization_header_missing = "Authorization header missing 🤬",
-  Middleware_error = "Middleware error 🤬",
-  Add_stript_key = "Add stripe key 🤬",
-  Invalid_subscriptionTypes = "Invalid subscriptionTypes 🤬",
-  Invalide_price_interval = "Invalide price interval 🤬",
-  Sms_send_successfully = "Sms send successfully 😀",
-  Envalide_subscription = "Envalide subscription 🤬",
-  Envalide_priceId = "Envalide priceId 🤬",
-  Card_deleted = "Card deleted 😀",
-  change_defaul_card = "Change Default Card Successfully 😀",
-  Error_fetching_cards_for_customer = "Error fetching cards for customer 🤬",
-  Subscription_Buy_Successfully = "🎉 Subscription_Buy_Successfully 🎉",
-  Pleace_add_card_first = "Pleace add card first 🤬",
+export enum code {
+  Registration_successfully = 1,
+  Email_already_exists = 2,
+  Phone_already_exists = 3,
+  Internal_server_error = 4,
+  User_not_found = 5,
+  Login_successful = 6,
+  Youre_unapproved = 7,
+  Invalid_password = 8,
+  Invalid_or_missing_parameter = 9,
+  Invalid_request = 10,
+  Detail_add_successfully = 11,
+  Your_subscriptions_is_over = 12,
+  Request_process_successfully = 13,
+  Twilio_credentials_not_found = 17,
+  Un_authorization_access = 18,
+  Authorization_header_missing = 19,
+  Middleware_error = 20,
+  Add_stript_key = 21,
+  Invalid_subscriptionTypes = 22,
+  Invalide_price_interval = 23,
+  Sms_send_successfully = 24,
+  Envalide_subscription = 25,
+  Envalide_priceId = 26,
+  Card_deleted = 27,
+  change_defaul_card = 28,
+  Error_fetching_cards_for_customer = 29,
+  Subscription_Buy_Successfully = 30,
+  Pleace_add_card_first = 31,
 }
 
 export enum STATUS {
@@ -69,6 +66,7 @@ export enum ROUTES {
   Admin_services_access = "admin",
   Images_access = "uploads",
   Stripe_access = "stripe",
+  languages_access = "language",
 }
 
 export enum days {
@@ -103,4 +101,21 @@ export enum intervals {
 export enum interval_count {
   Every_3_month = 3,
   Every_6_month = 6,
+}
+
+export enum server_log {
+  User_not_found = "Environment variable is not defined ",
+  Environment_variable_is_not_defined = "User not found ",
+  Server_is_running_on_port = "Port ",
+  MongoDB_connection_error = "MongoDB connection error ",
+  Envalide_subscription = "Envalide subscription ",
+  Envalide_priceId = "Envalide priceId ",
+  Add_stript_key = "Add stripe key ",
+  Request_URL = "Request URL:",
+  Internal_server_error = "Internal server error",
+}
+
+export enum message_db {
+  Sms_send_successfully = "Sms send successfully ",
+  Your_subscriptions_is_over = "Your Subscriptions is over ",
 }

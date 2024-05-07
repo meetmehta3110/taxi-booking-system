@@ -1,16 +1,16 @@
 import { postRequest } from "../../../../../src/utils/validationUtils";
 import {
   STATUS_CODE,
-  MESSAGE,
+  code,
   STATUS,
   SERVICES,
+  message_db,
 } from "../../../../../src/constants/constant";
 import { Request, Response } from "express";
 import { User } from "../../models/user.model";
 import { UserSubscription } from "../../models/userSubscription.model";
 import twilio from "twilio";
 import { addIntoRequest, checkSubscriptions } from "../../../../utils/util";
-import { ObjectId } from "mongodb";
 
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
@@ -37,7 +37,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     if (Subscriptions != 1) {
       resTime = new Date();
       status = STATUS.False;
-      descriptionns = MESSAGE.Your_subscriptions_is_over;
+      descriptionns = message_db.Your_subscriptions_is_over;
       add = {
         userId: uid,
         productId,
@@ -49,7 +49,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
       await addIntoRequest(add);
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: descriptionns, success: STATUS.False });
+        .json({ code: code.Your_subscriptions_is_over, success: STATUS.False });
     }
     await UserSubscription.findOneAndUpdate(
       { userId: uid, productId },
@@ -65,7 +65,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -76,7 +76,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     if (!user) {
       return res
         .status(STATUS_CODE.ERROR)
-        .json({ message: MESSAGE.User_not_found, success: STATUS.False });
+        .json({ code: code.User_not_found, success: STATUS.False });
     }
 
     const twilio_account_sid = user.twillo.twilio_account_sid;
@@ -86,47 +86,52 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     if (twilio_account_sid && twilio_auth_token && twilio_number) {
       const client = twilio(twilio_account_sid, twilio_auth_token);
 
-      // client.messages.create(
-      //   {
-      //     body: msg,
-      //     to: to,
-      //     from: twilio_number,
-      //   },
-      //   async function (err: any) {
-      //     let resTime = new Date();
-      //     let status: any;
-      //     let descriptionns: any;
-      //     let add: any = { userId:uid, service, requTime: new Date(), resTime };
+      client.messages.create(
+        {
+          body: msg,
+          to: to,
+          from: twilio_number,
+        },
+        async function (err: any) {
+          let resTime = new Date();
+          let status: any;
+          let descriptionns: any;
+          let add: any = {
+            userId: uid,
+            requTime: new Date(),
+            resTime,
+          };
 
-      //     if (err) {
-      //       console.log(err);
-      //       status = STATUS.False;
-      //       descriptionns = err;
-      //       add.status = status;
-      //       add.descriptionns = descriptionns;
-      //       await addIntoRequest(add);
-      //       return res
-      //         .status(STATUS_CODE.ERROR)
-      //         .json({ message: err, success: STATUS.False });
-      //     } else {
-      status = STATUS.True;
-      descriptionns = MESSAGE.Sms_send_successfully;
-      add.status = status;
-      add.descriptionns = descriptionns;
-      add.userId = uid;
-      add.productId = productId;
-      add.resTime = new Date();
-      add.requTime = requTime;
-      await addIntoRequest(add);
-      return res
-        .status(STATUS_CODE.SUCCESS)
-        .json({ message: descriptionns, success: STATUS.True });
-      // }
-      // }
-      // );
+          if (err) {
+            console.log(err);
+            status = STATUS.False;
+            descriptionns = err;
+            add.status = status;
+            add.descriptionns = descriptionns;
+            await addIntoRequest(add);
+            return res.status(STATUS_CODE.ERROR).json({
+              code: code.Internal_server_error,
+              success: STATUS.False,
+            });
+          } else {
+            status = STATUS.True;
+            descriptionns = message_db.Sms_send_successfully;
+            add.status = status;
+            add.descriptionns = descriptionns;
+            add.userId = uid;
+            add.productId = productId;
+            add.resTime = new Date();
+            add.requTime = requTime;
+            await addIntoRequest(add);
+            return res
+              .status(STATUS_CODE.SUCCESS)
+              .json({ code: code.Sms_send_successfully, success: STATUS.True });
+          }
+        }
+      );
     } else {
       return res.status(STATUS_CODE.ERROR).json({
-        message: MESSAGE.Twilio_credentials_not_found,
+        code: code.Twilio_credentials_not_found,
         success: STATUS.False,
       });
     }
@@ -150,6 +155,6 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     await addIntoRequest(add);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

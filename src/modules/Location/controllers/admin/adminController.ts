@@ -1,9 +1,10 @@
 import { postRequest } from "../../../../utils/validationUtils";
 import {
   STATUS_CODE,
-  MESSAGE,
+  code,
   STATUS,
   TYPE_OF_USER,
+  server_log,
 } from "../../../../constants/constant";
 import { Request, Response } from "express";
 import { User } from "../../models/user.model";
@@ -26,19 +27,12 @@ export async function register(req: Request, res: Response): Promise<any> {
       { name: "phoneCode", type: "string" },
     ];
 
-    interface ValidationResult {
-      valid: boolean;
-      errorResponse?: {
-        status: number;
-        message: string;
-        success: boolean;
-      };
-    }
+
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -56,14 +50,14 @@ export async function register(req: Request, res: Response): Promise<any> {
     if (existingUserEmail) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: MESSAGE.Email_already_exists, success: STATUS.False });
+        .json({ code: code.Email_already_exists, success: STATUS.False });
     }
 
     const existingUserPhone = await User.findOne({ phone, phoneCode });
     if (existingUserPhone) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: MESSAGE.Phone_already_exists, success: STATUS.False });
+        .json({ code: code.Phone_already_exists, success: STATUS.False });
     }
 
     // Hash the password
@@ -82,14 +76,14 @@ export async function register(req: Request, res: Response): Promise<any> {
     await newUser.save();
 
     return res.status(STATUS_CODE.SUCCESS).json({
-      message: MESSAGE.Registration_successfully,
+      code: code.Registration_successfully,
       success: STATUS.True,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False }); // Added internal server error response code
+      .json({ code: code.Internal_server_error, success: STATUS.False }); // Added internal server error response code
   }
 }
 
@@ -104,7 +98,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
-        message: validationResult.errorResponse?.message,
+        code: validationResult.errorResponse?.code,
         success: validationResult.errorResponse?.success,
       });
     }
@@ -116,24 +110,24 @@ export async function login(req: Request, res: Response): Promise<any> {
     if (!user) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: MESSAGE.User_not_found, success: STATUS.False });
+        .json({ code: code.User_not_found, success: STATUS.False });
     }
 
     if (user.isApprove == 0) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: MESSAGE.Youre_unapproved, success: STATUS.False });
+        .json({ code: code.Youre_unapproved, success: STATUS.False });
     }
 
     if (!user.validPassword(password)) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ message: MESSAGE.Invalid_password, success: STATUS.False });
+        .json({ code: code.Invalid_password, success: STATUS.False });
     }
 
     if (!process.env.JWT_SECRET) {
       throw new Error(
-        `JWT_SECRET ${MESSAGE.Environment_variable_is_not_defined}`
+        `JWT_SECRET ${server_log.Environment_variable_is_not_defined}`
       );
     }
 
@@ -145,14 +139,14 @@ export async function login(req: Request, res: Response): Promise<any> {
     await User.findByIdAndUpdate({ _id: user._id }, { isLogin: true });
 
     res.status(STATUS_CODE.SUCCESS).json({
-      accessToken,
-      message: MESSAGE.Login_successful,
+      data:{accessToken},
+      code: code.Login_successful,
       success: STATUS.True,
     });
   } catch (error) {
     console.log(error);
     res
       .status(STATUS_CODE.ERROR)
-      .json({ message: MESSAGE.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

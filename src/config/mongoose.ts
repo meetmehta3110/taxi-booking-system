@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { MESSAGE } from "../constants/constant";
+import { server_log } from "../constants/constant";
 import { initialData } from "../utils/util";
 // Load environment variables from .env file
 dotenv.config();
@@ -10,7 +10,7 @@ export const connectToDB = async (): Promise<typeof mongoose> => {
   try {
     if (!process.env.LOCATION_DB_URI) {
       throw new Error(
-        `LOCATION_DB_URI  ${MESSAGE.Environment_variable_is_not_defined}`
+        `LOCATION_DB_URI  ${server_log.Environment_variable_is_not_defined}`
       );
     }
 
@@ -19,7 +19,7 @@ export const connectToDB = async (): Promise<typeof mongoose> => {
     await initialData();
     return dbConnection;
   } catch (error) {
-    console.log(MESSAGE.MongoDB_connection_error, error);
+    console.log(server_log.MongoDB_connection_error, error);
     process.exit(1); // Exit process with failure
   }
 };

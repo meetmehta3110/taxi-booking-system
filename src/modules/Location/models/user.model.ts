@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
-import { MESSAGE } from "../../../constants/constant";
+import { server_log } from "../../../constants/constant";
 
 if (!process.env.LOCATION_DB_URI) {
   throw new Error(
-    `LOCATION_DB_URI ${MESSAGE.Environment_variable_is_not_defined}`
+    `LOCATION_DB_URI ${server_log.Environment_variable_is_not_defined}`
   );
 }
 

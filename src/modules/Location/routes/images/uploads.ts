@@ -1,12 +1,12 @@
 import express, { Router } from "express";
 const router: Router = express.Router();
 import dotenv from "dotenv";
-import { MESSAGE } from "../../../../constants/constant";
+import { server_log } from "../../../../constants/constant";
 dotenv.config({ path: "../../../../../../../env/.env" });
 
 if (!process.env.DEFAULT_IMAGE_FOLDER) {
   throw new Error(
-    `DEFAULT_IMAGE_FOLDER  ${MESSAGE.Environment_variable_is_not_defined}`
+    `DEFAULT_IMAGE_FOLDER  ${server_log.Environment_variable_is_not_defined}`
   );
 }
 const DEFAULT_IMAGE_FOLDER = process.env.DEFAULT_IMAGE_FOLDER;
