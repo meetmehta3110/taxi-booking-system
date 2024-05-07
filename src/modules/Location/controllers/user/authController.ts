@@ -155,7 +155,6 @@ export async function login(req: Request, res: Response): Promise<any> {
     );
 
     await User.findByIdAndUpdate({ _id: user._id }, { isLogin: true });
-    console.log(user);
     user.password = "";
     return res.status(STATUS_CODE.SUCCESS).json({
       data: { token: accessToken, user },
