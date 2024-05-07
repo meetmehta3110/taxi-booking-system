@@ -7,9 +7,9 @@ import {
   code,
   STATUS_CODE,
   STATUS,
-  server_log
+  server_log,
 } from "../constants/constant";
-// Retrieves the JWT secret from the environment variables and checks if it is defined.If the JWT secret is not defined, it returns a 500 status with an error code.
+// Retrieves the JWT secret from the environment variables and checks if it is defined.If the JWT secret is not defined, it returns a 500 status with an error message.
 const { ENCRYPTION_KEY } = process.env as { ENCRYPTION_KEY: string };
 
 // Common request and response middleware
@@ -36,7 +36,12 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
     const resultMatch = /\/([^\/]*)/.exec(req.path);
 
     if (resultMatch != null) {
-      if (resultMatch[1] == ROUTES.User_without_login || (resultMatch[1] == ROUTES.Images_access ) || (resultMatch[1] == ROUTES.Stripe_access ) || (resultMatch[1] == ROUTES.languages_access ))  {
+      if (
+        resultMatch[1] == ROUTES.User_without_login ||
+        resultMatch[1] == ROUTES.Images_access ||
+        resultMatch[1] == ROUTES.Stripe_access ||
+        resultMatch[1] == ROUTES.languages_access
+      ) {
         next();
       } else if (authHeader) {
         const token = authHeader.split(" ")[1];
@@ -54,7 +59,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
                 resultMatch[1] === ROUTES.Admin_services_access)
             ) {
               res.status(STATUS_CODE.SUCCESS).json({
-                code: code.Un_authorization_access,
+                message: code.Un_authorization_access,
                 success: STATUS.False,
               });
             } else {
@@ -71,7 +76,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
       } else {
         // If no Authorization header is present
         res.status(STATUS_CODE.SUCCESS).json({
-          code: code.Authorization_header_missing,
+          message: code.Authorization_header_missing,
           success: STATUS.False,
         });
       }
@@ -79,7 +84,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
   } catch (err) {
     res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Middleware_error, success: STATUS.False });
+      .json({ message: code.Middleware_error, success: STATUS.False });
   }
 };
 

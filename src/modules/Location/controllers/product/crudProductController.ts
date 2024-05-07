@@ -2,9 +2,7 @@ import { STATUS_CODE, code, STATUS } from "../../../../constants/constant";
 import { Request, Response } from "express";
 import { Product } from "../../models/product.model";
 import { postRequest } from "../../../../utils/validationUtils";
-import {
-  stripe_add_product,
-} from "../../../../utils/util";
+import { stripe_add_product } from "../../../../utils/util";
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
 
@@ -93,7 +91,7 @@ export async function update(req: Request, res: Response): Promise<any> {
       });
     }
 
-    const { update, _id, productId } = req.body;
+    const { update, _id } = req.body;
 
     await Product.findByIdAndUpdate({ _id }, update);
 

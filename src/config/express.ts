@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import bodyParser from "body-parser";
 import { commonMiddleware } from "../middleware/common.middleware";
 import routes from "../modules/Location/routes/index";

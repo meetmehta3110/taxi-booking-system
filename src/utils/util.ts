@@ -9,8 +9,7 @@ import {
   subscriptionTypes,
   days,
   STATUS,
-  code,
-  server_log
+  server_log,
 } from "../constants/constant";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
@@ -253,7 +252,6 @@ export async function stripe_update_product(
   const setting: SettingnDocument | null = await Setting.findOne({});
   if (setting && setting.stripe_secret_key != "") {
     const stripe = require("stripe")(setting.stripe_secret_key);
-  
 
     const product = await stripe.products.update(productId, update);
     return { status: STATUS.True, id: product.id };
