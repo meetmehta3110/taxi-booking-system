@@ -1,0 +1,6 @@
+projectKey=Erise
+serverUrl=http://localhost:9000
+serverVersion=10.5.1.90531
+dashboardUrl=http://localhost:9000/dashboard?id=Erise
+ceTaskId=bb5cd487-8c82-42b8-ae08-93f65e4a22c0
+ceTaskUrl=http://localhost:9000/api/ce/task?id=bb5cd487-8c82-42b8-ae08-93f65e4a22c0
