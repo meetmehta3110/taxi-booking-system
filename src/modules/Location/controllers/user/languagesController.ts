@@ -1,4 +1,3 @@
-import { postRequest } from "../../../../../src/utils/validationUtils";
 import {
   STATUS_CODE,
   code,

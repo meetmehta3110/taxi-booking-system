@@ -4,7 +4,6 @@ import { Product } from "../../models/product.model";
 import { postRequest } from "../../../../utils/validationUtils";
 import {
   stripe_add_product,
-  stripe_update_product,
 } from "../../../../utils/util";
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
@@ -95,7 +94,6 @@ export async function update(req: Request, res: Response): Promise<any> {
     }
 
     const { update, _id, productId } = req.body;
-    const update_strie_product = await stripe_update_product(productId, update);
 
     await Product.findByIdAndUpdate({ _id }, update);
 

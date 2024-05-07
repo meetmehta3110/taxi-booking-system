@@ -64,7 +64,7 @@ export async function register(req: Request, res: Response): Promise<any> {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     const setting: SettingnDocument | null = await Setting.findOne({});
-    if (!setting || !setting.stripe_secret_key) {
+    if (!setting?.stripe_secret_key) {
       return res
         .status(STATUS_CODE.SUCCESS)
         .json({ code: code.Add_stript_key, success: STATUS.False });

@@ -57,7 +57,6 @@ export async function add(req: Request, res: Response): Promise<any> {
 
       if (!status) {
         findal_status = false;
-        return;
       }
     });
 
