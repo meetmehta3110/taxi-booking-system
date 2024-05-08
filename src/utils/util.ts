@@ -413,14 +413,14 @@ export async function validateFields(
   const validationResult = postRequest(req, res, requiredFields);
   if (!validationResult.valid) {
     return {
-      STATUS_CODE: validationResult.errorResponse?.status ?? 200,
+      STATUS_CODE: validationResult.errorResponse?.status_code ?? 200,
       code: validationResult.errorResponse?.code,
-      success: validationResult.errorResponse?.success,
+      status: validationResult.errorResponse?.status,
     };
   }
   return {
-    STATUS_CODE: validationResult.errorResponse?.status ?? 200,
+    STATUS_CODE: validationResult.errorResponse?.status_code ?? 200,
     code: validationResult.errorResponse?.code,
-    success: validationResult.errorResponse?.success,
+    status: validationResult.errorResponse?.status,
   };
 }

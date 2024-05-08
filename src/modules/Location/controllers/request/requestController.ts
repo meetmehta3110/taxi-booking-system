@@ -49,7 +49,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
       await addIntoRequest(add);
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Your_subscriptions_is_over, success: STATUS.False });
+        .json({ code: code.Your_subscriptions_is_over, status: STATUS.False });
     }
     await UserSubscription.findOneAndUpdate(
       { userId: uid, productId },
@@ -64,9 +64,9 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -76,7 +76,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     if (!user) {
       return res
         .status(STATUS_CODE.ERROR)
-        .json({ code: code.User_not_found, success: STATUS.False });
+        .json({ code: code.User_not_found, status: STATUS.False });
     }
 
     const twilio_account_sid = user.twillo.twilio_account_sid;
@@ -111,7 +111,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
             await addIntoRequest(add);
             return res.status(STATUS_CODE.ERROR).json({
               code: code.Internal_server_error,
-              success: STATUS.False,
+              status: STATUS.False,
             });
           } else {
             status = STATUS.True;
@@ -125,14 +125,14 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
             await addIntoRequest(add);
             return res
               .status(STATUS_CODE.SUCCESS)
-              .json({ code: code.Sms_send_successfully, success: STATUS.True });
+              .json({ code: code.Sms_send_successfully, status: STATUS.True });
           }
         }
       );
     } else {
       return res.status(STATUS_CODE.ERROR).json({
         code: code.Twilio_credentials_not_found,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
   } catch (error) {
@@ -155,6 +155,6 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
     await addIntoRequest(add);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

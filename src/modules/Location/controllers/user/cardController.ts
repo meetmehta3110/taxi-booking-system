@@ -21,29 +21,23 @@ interface Field {
   type: "string" | "number" | "boolean"; // Adjust as needed for other types
 }
 
-async function handleErrorResponse(
-  res: Response,
-  validationResult: any
-): Promise<Response> {
-  const errorResponse = validationResult.errorResponse;
-  const status = errorResponse?.status ?? 200;
-  const codeValue = errorResponse?.code;
-  const successValue = errorResponse?.success;
 
-  return res.status(status).json({ code: codeValue, success: successValue });
-}
 
 export async function remove(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "stripeCustomerId", type: "string" },
       { name: "stripeCardId", type: "string" },
-    ];
+    ],validationResult;
 
-    const validationResult = postRequest(req, res, requiredFields);
+   
+    validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return await handleErrorResponse(res, validationResult);
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
+        code: validationResult.errorResponse?.code,
+        status: validationResult.errorResponse?.status,
+      });
     }
 
     const { stripeCustomerId, stripeCardId } = req.body;
@@ -52,34 +46,38 @@ export async function remove(req: Request, res: Response): Promise<any> {
       .then((deletedCard) => {
         return res
           .status(STATUS_CODE.SUCCESS)
-          .json({ code: code.Card_deleted, success: STATUS.True });
+          .json({ code: code.Card_deleted, status: STATUS.True });
       })
       .catch((error) => {
         console.log(error);
         return res.status(STATUS_CODE.ERROR).json({
           code: code.Internal_server_error,
-          success: STATUS.False,
+          status: STATUS.False,
         });
       });
   } catch (err) {
     console.log(err);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
 export async function setdefault(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "stripeCustomerId", type: "string" },
       { name: "stripeCardId", type: "string" },
-    ];
+    ],validationResult;
 
-    const validationResult = postRequest(req, res, requiredFields);
+    
+    validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return await handleErrorResponse(res, validationResult);
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
+        code: validationResult.errorResponse?.code,
+        status: validationResult.errorResponse?.status,
+      });
     }
 
     const { stripeCustomerId, stripeCardId } = req.body;
@@ -88,27 +86,31 @@ export async function setdefault(req: Request, res: Response): Promise<any> {
 
     return res.status(200).json({
       code: code.change_defaul_card,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (err) {
     console.log(err);
 
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "stripeCustomerId", type: "string" },
-    ];
+    ],validationResult;
 
-    const validationResult = postRequest(req, res, requiredFields);
+    
+    validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return await handleErrorResponse(res, validationResult);
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
+        code: validationResult.errorResponse?.code,
+        status: validationResult.errorResponse?.status,
+      });
     }
     const stripeCustomerId = req.body.stripeCustomerId;
     getAllCards(stripeCustomerId).then(async (cards) => {
@@ -123,47 +125,52 @@ export async function get(req: Request, res: Response): Promise<any> {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Request_process_successfully,
         data: { cards: cards, defaultCard: isDefaultCard },
-        success: STATUS.True,
+        status: STATUS.True,
       });
     });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False }); // Added internal server error response code
+      .json({ code: code.Internal_server_error, status: STATUS.False }); // Added internal server error response code
   }
 }
 
 export async function add(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "stripeCustomerId", type: "string" },
       //   { name: "token", type: "string" }, addd after
-    ];
+    ],validationResult;
 
-    const validationResult = postRequest(req, res, requiredFields);
+    
+    validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return await handleErrorResponse(res, validationResult);
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
+        code: validationResult.errorResponse?.code,
+        status: validationResult.errorResponse?.status,
+      });
     }
+
     const stripeCustomerId = req.body.stripeCustomerId;
     let card = await addTestCardToCustomer(stripeCustomerId, "");
     if (card) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Request_process_successfully,
         data: card,
-        success: STATUS.True,
+        status: STATUS.True,
       });
     } else {
       return res.status(422).json({
         code: code.Internal_server_error,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
   } catch (error) {
     console.log(error);
     res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

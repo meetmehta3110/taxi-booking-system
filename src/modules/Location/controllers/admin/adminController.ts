@@ -33,10 +33,10 @@ export async function register(req: Request, res: Response): Promise<any> {
       newUser;
 
     vali = await validateFields(req, res, requiredFields);
-    if (!vali.success) {
+    if (!vali.status) {
       return res.status(vali.STATUS_CODE).json({
         code: vali.code,
-        success: vali.success,
+        status: vali.success,
       });
     }
 
@@ -53,14 +53,14 @@ export async function register(req: Request, res: Response): Promise<any> {
     if (existingUserEmail) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Email_already_exists, success: STATUS.False });
+        .json({ code: code.Email_already_exists, status: STATUS.False });
     }
 
     existingUserPhone = await User.findOne({ phone, phoneCode });
     if (existingUserPhone) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Phone_already_exists, success: STATUS.False });
+        .json({ code: code.Phone_already_exists, status: STATUS.False });
     }
 
     hashedPassword = await bcrypt.hash(password, 10);
@@ -78,12 +78,12 @@ export async function register(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Registration_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -98,10 +98,10 @@ export async function login(req: Request, res: Response): Promise<any> {
       accessToken;
 
     vali = await validateFields(req, res, requiredFields);
-    if (!vali.success) {
+    if (!vali.status) {
       return res.status(vali.STATUS_CODE).json({
         code: vali.code,
-        success: vali.success,
+        status: vali.status,
       });
     }
 
@@ -112,19 +112,19 @@ export async function login(req: Request, res: Response): Promise<any> {
     if (!user) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.User_not_found, success: STATUS.False });
+        .json({ code: code.User_not_found, status: STATUS.False });
     }
 
     if (user.isApprove == 0) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Youre_unapproved, success: STATUS.False });
+        .json({ code: code.Youre_unapproved, status: STATUS.False });
     }
 
     if (!user.validPassword(password)) {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Invalid_password, success: STATUS.False });
+        .json({ code: code.Invalid_password, status: STATUS.False });
     }
 
     if (!process.env.JWT_SECRET) {
@@ -143,11 +143,11 @@ export async function login(req: Request, res: Response): Promise<any> {
     res.status(STATUS_CODE.SUCCESS).json({
       data: { accessToken },
       code: code.Login_successful,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

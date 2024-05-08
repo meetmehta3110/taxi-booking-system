@@ -17,6 +17,6 @@ export async function languages(req: Request, res: Response): Promise<any> {
     console.log(err);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

@@ -24,9 +24,9 @@ export async function get(req: Request, res: Response): Promise<any> {
     const validationResult = getRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -37,7 +37,7 @@ export async function get(req: Request, res: Response): Promise<any> {
     }
     let api_key = data.api_key;
     if (api_key != "") {
-      return res.status(201).json({ data:{api_key}, success: true });
+      return res.status(201).json({ data: { api_key }, status: true });
     }
     if (!process.env.JWT_SECRET) {
       throw new Error(
@@ -51,11 +51,11 @@ export async function get(req: Request, res: Response): Promise<any> {
     await User.findByIdAndUpdate({ _id: uid }, { api_key });
     return res
       .status(STATUS_CODE.SUCCESS)
-      .json({ data:{api_key}, success: STATUS.True });
+      .json({ data: { api_key }, status: STATUS.True });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

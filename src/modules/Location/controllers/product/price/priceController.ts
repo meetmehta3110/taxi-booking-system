@@ -26,12 +26,12 @@ export async function get(req: Request, res: Response): Promise<any> {
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
       data: data,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -46,10 +46,10 @@ export async function add(req: Request, res: Response): Promise<any> {
     ];
 
     const vali = await validateFields(req, res, requiredFields);
-    if (!vali.success) {
+    if (!vali.status) {
       return res.status(vali.STATUS_CODE).json({
         code: vali.code,
-        success: vali.success,
+        status: vali.success,
       });
     }
 
@@ -61,7 +61,7 @@ export async function add(req: Request, res: Response): Promise<any> {
     ) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Invalid_subscriptionTypes,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
     let recurring = { interval: "", interval_count: 1 };
@@ -93,7 +93,7 @@ export async function add(req: Request, res: Response): Promise<any> {
     if (!stripeProduct.status) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Add_stript_key,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
 
@@ -110,12 +110,12 @@ export async function add(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -128,10 +128,10 @@ export async function update(req: Request, res: Response): Promise<any> {
     ];
 
     const vali = await validateFields(req, res, requiredFields);
-    if (!vali.success) {
+    if (!vali.status) {
       return res.status(vali.STATUS_CODE).json({
         code: vali.code,
-        success: vali.success,
+        status: vali.success,
       });
     }
 
@@ -144,7 +144,7 @@ export async function update(req: Request, res: Response): Promise<any> {
     if (!update_strie_product.status) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Add_stript_key,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
 
@@ -152,12 +152,12 @@ export async function update(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error: any) {
     return res
       .status(500)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -168,10 +168,10 @@ export async function remove(req: Request, res: Response): Promise<any> {
       update_strie_product;
 
     vali = await validateFields(req, res, requiredFields);
-    if (!vali.success) {
+    if (!vali.status) {
       return res.status(vali.STATUS_CODE).json({
         code: vali.code,
-        success: vali.success,
+        status: vali.success,
       });
     }
 
@@ -181,7 +181,7 @@ export async function remove(req: Request, res: Response): Promise<any> {
     if (!update_strie_product.status) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Add_stript_key,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
 
@@ -189,11 +189,11 @@ export async function remove(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

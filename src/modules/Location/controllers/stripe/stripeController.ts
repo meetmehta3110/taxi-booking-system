@@ -1,4 +1,9 @@
-import { STATUS_CODE, code, STATUS, server_log } from "../../../../constants/constant";
+import {
+  STATUS_CODE,
+  code,
+  STATUS,
+  server_log,
+} from "../../../../constants/constant";
 import { Request, Response } from "express";
 import {
   Subscription,
@@ -30,9 +35,9 @@ export async function createCheckoutSession(
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -52,7 +57,7 @@ export async function createCheckoutSession(
     if (!findCard) {
       return res.status(STATUS_CODE.ERROR).json({
         code: code.Internal_server_error,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
     const getCard = await getAllCards(findCard.stripeCustomerId);
@@ -60,7 +65,7 @@ export async function createCheckoutSession(
     if (getCard.length == 0) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Pleace_add_card_first,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
     const promises = subscription.service.map(async (subscription: any) => {
@@ -88,7 +93,7 @@ export async function createCheckoutSession(
     if (!user) {
       return res
         .status(STATUS_CODE.ERROR)
-        .json({ code: code.User_not_found, success: STATUS.False });
+        .json({ code: code.User_not_found, status: STATUS.False });
     }
 
     const setting: SettingnDocument | null = await Setting.findOne({});
@@ -107,8 +112,6 @@ export async function createCheckoutSession(
       // get id, save to user, return url
       const stripesubscriptionId = session.id;
 
-    
-
       // save session.id to the user in your database
 
       const newSubscription = {
@@ -123,18 +126,18 @@ export async function createCheckoutSession(
 
       res.status(STATUS_CODE.SUCCESS).json({
         code: code.Subscription_Buy_Successfully,
-        success: STATUS.True,
+        status: STATUS.True,
       });
     } else {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Add_stript_key, success: STATUS.False });
+        .json({ code: code.Add_stript_key, status: STATUS.False });
     }
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -167,6 +170,6 @@ export async function webhook(req: Request, res: Response): Promise<any> {
 
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

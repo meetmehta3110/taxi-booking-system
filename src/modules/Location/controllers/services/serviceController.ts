@@ -29,9 +29,9 @@ export async function get(req: Request, res: Response): Promise<any> {
     const validationResult = getRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -48,29 +48,31 @@ export async function get(req: Request, res: Response): Promise<any> {
       return res.status(STATUS_CODE.SUCCESS).json({
         data: data,
         code: code.Request_process_successfully,
-        success: STATUS.True,
+        status: STATUS.True,
       });
     } else {
       return res
         .status(STATUS_CODE.SUCCESS)
-        .json({ code: code.Invalid_request, success: STATUS.False });
+        .json({ code: code.Invalid_request, status: STATUS.False });
     }
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
 export async function add(req: Request, res: Response): Promise<any> {
   let requiredFields: Field[] = [{ name: "service", type: "number" }];
+  console.log("hello babay");
+
   const validationResult = postRequest(req, res, requiredFields);
 
   if (!validationResult.valid) {
-    return res.status(validationResult.errorResponse?.status ?? 200).json({
+    return res.status(validationResult.errorResponse?.status_code ?? 200).json({
       code: validationResult.errorResponse?.code,
-      success: validationResult.errorResponse?.success,
+      status: validationResult.errorResponse?.status,
     });
   }
 
@@ -102,23 +104,23 @@ export async function add(req: Request, res: Response): Promise<any> {
         },
       };
     }
-    
+
     const validationResult = postRequest(req, res, requiredFields);
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
   } else {
     return res
-    .status(STATUS_CODE.SUCCESS)
-    .json({ code: code.Invalid_request, success: STATUS.False });
+      .status(STATUS_CODE.SUCCESS)
+      .json({ code: code.Invalid_request, status: STATUS.False });
   }
-  
+
   uid = req.body.uid;
   await User.findByIdAndUpdate({ _id: uid }, update);
   return res
     .status(STATUS_CODE.SUCCESS)
-    .json({ code: code.Detail_add_successfully, success: STATUS.True });
+    .json({ code: code.Detail_add_successfully, status: STATUS.True });
 }

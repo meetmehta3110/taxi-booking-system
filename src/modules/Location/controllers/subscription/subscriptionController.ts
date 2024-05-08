@@ -17,13 +17,13 @@ export async function get(req: Request, res: Response): Promise<any> {
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
       data: data,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -39,9 +39,9 @@ export async function add(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -65,7 +65,7 @@ export async function add(req: Request, res: Response): Promise<any> {
     if (!findal_status) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Invalide_price_interval,
-        success: STATUS.False,
+        status: STATUS.False,
       });
     }
 
@@ -80,13 +80,13 @@ export async function add(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -100,9 +100,9 @@ export async function update(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -112,13 +112,13 @@ export async function update(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }
 
@@ -129,9 +129,9 @@ export async function remove(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
+      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+        status: validationResult.errorResponse?.status,
       });
     }
 
@@ -141,12 +141,12 @@ export async function remove(req: Request, res: Response): Promise<any> {
 
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
-      success: STATUS.True,
+      status: STATUS.True,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+      .json({ code: code.Internal_server_error, status: STATUS.False });
   }
 }

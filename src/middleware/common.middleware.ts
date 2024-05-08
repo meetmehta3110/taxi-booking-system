@@ -60,7 +60,7 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
             ) {
               res.status(STATUS_CODE.SUCCESS).json({
                 message: code.Un_authorization_access,
-                success: STATUS.False,
+                status: STATUS.False,
               });
             } else {
               if (
@@ -77,14 +77,14 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
         // If no Authorization header is present
         res.status(STATUS_CODE.SUCCESS).json({
           message: code.Authorization_header_missing,
-          success: STATUS.False,
+          status: STATUS.False,
         });
       }
     }
   } catch (err) {
     res
       .status(STATUS_CODE.ERROR)
-      .json({ message: code.Middleware_error, success: STATUS.False });
+      .json({ message: code.Middleware_error, status: STATUS.False });
   }
 };
 
