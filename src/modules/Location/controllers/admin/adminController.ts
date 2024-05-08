@@ -1,4 +1,4 @@
-import { postRequest } from "../../../../utils/validationUtils";
+import { validateFields, Field } from "../../../../utils/util";
 import {
   STATUS_CODE,
   code,
@@ -12,28 +12,31 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
-interface Field {
-  name: string;
-  type: "string" | "number" | "boolean"; // Adjust as needed for other types
+
+async function findUserByEmail(email: string) {
+  return await User.findOne({ email });
 }
 
 export async function register(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
-      { name: "username", type: "string" },
-      { name: "email", type: "string" },
-      { name: "password", type: "string" },
-      { name: "phone", type: "string" },
-      { name: "phoneCode", type: "string" },
-    ];
+    let requiredFields: Field[] = [
+        { name: "username", type: "string" },
+        { name: "email", type: "string" },
+        { name: "password", type: "string" },
+        { name: "phone", type: "string" },
+        { name: "phoneCode", type: "string" },
+      ],
+      vali,
+      existingUserEmail,
+      existingUserPhone,
+      hashedPassword,
+      newUser;
 
-
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+    vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
@@ -45,26 +48,24 @@ export async function register(req: Request, res: Response): Promise<any> {
       phoneCode,
       registrationMode = 0,
     } = req.body;
-    // Check if the user already exists
-    const existingUserEmail = await User.findOne({ email });
+
+    existingUserEmail = await User.findOne({ email });
     if (existingUserEmail) {
       return res
         .status(STATUS_CODE.SUCCESS)
         .json({ code: code.Email_already_exists, success: STATUS.False });
     }
 
-    const existingUserPhone = await User.findOne({ phone, phoneCode });
+    existingUserPhone = await User.findOne({ phone, phoneCode });
     if (existingUserPhone) {
       return res
         .status(STATUS_CODE.SUCCESS)
         .json({ code: code.Phone_already_exists, success: STATUS.False });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user with the provided information
-    const newUser = new User({
+    newUser = new User({
       username,
       email,
       password: hashedPassword,
@@ -80,32 +81,33 @@ export async function register(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False }); // Added internal server error response code
+      .status(500)
+      .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
 export async function login(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
-      { name: "email", type: "string" },
-      { name: "password", type: "string" },
-    ];
+    let requiredFields: Field[] = [
+        { name: "email", type: "string" },
+        { name: "password", type: "string" },
+      ],
+      vali,
+      user,
+      accessToken;
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+    vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    user = await findUserByEmail(email);
 
     if (!user) {
       return res
@@ -131,7 +133,7 @@ export async function login(req: Request, res: Response): Promise<any> {
       );
     }
 
-    const accessToken = jwt.sign(
+    accessToken = jwt.sign(
       { uid: user._id.toHexString(), type: TYPE_OF_USER.USER },
       process.env.JWT_SECRET
     );
@@ -139,14 +141,13 @@ export async function login(req: Request, res: Response): Promise<any> {
     await User.findByIdAndUpdate({ _id: user._id }, { isLogin: true });
 
     res.status(STATUS_CODE.SUCCESS).json({
-      data:{accessToken},
+      data: { accessToken },
       code: code.Login_successful,
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
-    res
-      .status(STATUS_CODE.ERROR)
+    return res
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

@@ -9,19 +9,16 @@ import {
 import { Request, Response } from "express";
 import { Product } from "../../../models/product.model";
 import { Price } from "../../../models/price.model";
-import { postRequest } from "../../../../../utils/validationUtils";
+
 import {
   stripe_add_price,
   stripe_update_product,
   stripe_remoce_product,
+  validateFields,
+  Field,
 } from "../../../../../utils/util";
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
-
-interface Field {
-  name: string;
-  type: "string" | "number" | "boolean" | "object"; // Adjust as needed for other types
-}
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
@@ -32,9 +29,8 @@ export async function get(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
@@ -49,12 +45,11 @@ export async function add(req: Request, res: Response): Promise<any> {
       { name: "interval", type: "number" },
     ];
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+    const vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
@@ -118,9 +113,8 @@ export async function add(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
@@ -133,12 +127,11 @@ export async function update(req: Request, res: Response): Promise<any> {
       { name: "update", type: "object" },
     ];
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+    const vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
@@ -161,31 +154,29 @@ export async function update(req: Request, res: Response): Promise<any> {
       code: code.Request_process_successfully,
       success: STATUS.True,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
 export async function remove(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
-      { name: "stripeProductId", type: "string" },
-    ];
+    let requiredFields: Field[] = [{ name: "stripeProductId", type: "string" }],
+      vali,
+      update_strie_product;
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+    vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
     const { stripeProductId } = req.body;
-    const update_strie_product = await stripe_remoce_product(stripeProductId);
+    update_strie_product = await stripe_remoce_product(stripeProductId);
 
     if (!update_strie_product.status) {
       return res.status(STATUS_CODE.SUCCESS).json({
@@ -201,9 +192,8 @@ export async function remove(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

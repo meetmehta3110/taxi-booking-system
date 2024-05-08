@@ -1,15 +1,13 @@
 import { STATUS_CODE, code, STATUS } from "../../../../constants/constant";
 import { Request, Response } from "express";
 import { Product } from "../../models/product.model";
-import { postRequest } from "../../../../utils/validationUtils";
-import { stripe_add_product } from "../../../../utils/util";
+import {
+  stripe_add_product,
+  validateFields,
+  Field,
+} from "../../../../utils/util";
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
-
-interface Field {
-  name: string;
-  type: "string" | "number" | "boolean" | "object"; // Adjust as needed for other types
-}
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
@@ -20,32 +18,33 @@ export async function get(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
 export async function add(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
-      { name: "name", type: "string" },
-      { name: "filePath", type: "string" },
-    ];
+    let requiredFields: Field[] = [
+        { name: "name", type: "string" },
+        { name: "filePath", type: "string" },
+      ],
+      vali,
+      stripeProduct,
+      product;
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+    vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
     const { name, filePath } = req.body;
 
-    const stripeProduct = await stripe_add_product(name, filePath);
+    stripeProduct = await stripe_add_product(name, filePath);
 
     if (!stripeProduct.status) {
       return res.status(STATUS_CODE.SUCCESS).json({
@@ -54,7 +53,7 @@ export async function add(req: Request, res: Response): Promise<any> {
       });
     }
 
-    const product = new Product({
+    product = new Product({
       name,
       productId: stripeProduct.id,
       imageUrl: filePath,
@@ -69,25 +68,24 @@ export async function add(req: Request, res: Response): Promise<any> {
   } catch (error) {
     console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
 export async function update(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "_id", type: "string" },
       { name: "productId", type: "string" },
       { name: "update", type: "object" },
-    ];
+    ] , vali;
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+     vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
@@ -100,23 +98,21 @@ export async function update(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
 export async function remove(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [{ name: "productId", type: "string" }];
+    let requiredFields: Field[] = [{ name: "productId", type: "string" }] , vali;
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+     vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
 
@@ -129,9 +125,8 @@ export async function remove(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
     return res
-      .status(STATUS_CODE.ERROR)
+      .status(500)
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

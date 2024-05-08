@@ -33,7 +33,11 @@ export const postRequest = (req:Request, res:Response, fields: Field[]): Validat
         }
     }
     
-    return { valid: true };
+    return { valid: true ,errorResponse: {
+        status: STATUS_CODE.SUCCESS,
+        code: code.Right_parameter,
+        success : STATUS.True
+    }};
 }
 
 export const getRequest = (req: Request, res: Response, fields: Field[]): ValidationResult => {

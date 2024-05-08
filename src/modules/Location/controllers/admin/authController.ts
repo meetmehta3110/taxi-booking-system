@@ -19,16 +19,16 @@ interface Field {
 
 export async function register(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "username", type: "string" },
       { name: "email", type: "string" },
       { name: "password", type: "string" },
       { name: "phone", type: "string" },
       { name: "phoneCode", type: "string" },
-    ];
+    ],validationResult,existingUserEmail,existingUserPhone,hashedPassword,newUser;
 
  
-    const validationResult = postRequest(req, res, requiredFields);
+     validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
@@ -46,14 +46,14 @@ export async function register(req: Request, res: Response): Promise<any> {
       registrationMode = 0,
     } = req.body;
     // Check if the user already exists
-    const existingUserEmail = await Admin.findOne({ email });
+     existingUserEmail = await Admin.findOne({ email });
     if (existingUserEmail) {
       return res
         .status(STATUS_CODE.SUCCESS)
         .json({ code: code.Email_already_exists, success: STATUS.False });
     }
 
-    const existingUserPhone = await Admin.findOne({ phone, phoneCode });
+     existingUserPhone = await Admin.findOne({ phone, phoneCode });
     if (existingUserPhone) {
       return res
         .status(STATUS_CODE.SUCCESS)
@@ -61,10 +61,10 @@ export async function register(req: Request, res: Response): Promise<any> {
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+     hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user with the provided information
-    const newUser = new Admin({
+     newUser = new Admin({
       username,
       email,
       password: hashedPassword,
@@ -89,12 +89,12 @@ export async function register(req: Request, res: Response): Promise<any> {
 
 export async function login(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "email", type: "string" },
       { name: "password", type: "string" },
-    ];
+    ],validationResult,user,accessToken;
 
-    const validationResult = postRequest(req, res, requiredFields);
+     validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status ?? 200).json({
@@ -105,7 +105,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
     const { email, password } = req.body;
 
-    const user = await Admin.findOne({ email });
+     user = await Admin.findOne({ email });
 
     if (!user) {
       return res
@@ -131,7 +131,7 @@ export async function login(req: Request, res: Response): Promise<any> {
       );
     }
 
-    const accessToken = jwt.sign(
+     accessToken = jwt.sign(
       { uid: user._id.toHexString(), type: TYPE_OF_USER.ADMIN },
       process.env.JWT_SECRET
     );

@@ -1,4 +1,5 @@
 import { Request } from "../modules/Location/models/request.model";
+import { Response } from "express";
 import {
   UserSubscription,
   UserSubscriptionDocument,
@@ -10,6 +11,8 @@ import {
   days,
   STATUS,
   server_log,
+  code,
+  STATUS_CODE,
 } from "../constants/constant";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
@@ -24,6 +27,7 @@ import multer from "multer";
 import path from "path";
 import { ObjectId } from "mongodb";
 import { error } from "console";
+import { postRequest } from "./validationUtils";
 export async function addIntoRequest(add: any): Promise<void> {
   const newReq = new Request(add);
   await newReq.save();
@@ -394,4 +398,29 @@ export async function addTestCardToCustomer(customerId: string, token: any) {
     console.log(server_log.Internal_server_error, error);
     throw error;
   }
+}
+
+export interface Field {
+  name: string;
+  type: "string" | "number" | "boolean" | "object"; // Adjust as needed for other types
+}
+
+export async function validateFields(
+  req: any,
+  res: Response,
+  requiredFields: Field[]
+): Promise<any> {
+  const validationResult = postRequest(req, res, requiredFields);
+  if (!validationResult.valid) {
+    return {
+      STATUS_CODE: validationResult.errorResponse?.status ?? 200,
+      code: validationResult.errorResponse?.code,
+      success: validationResult.errorResponse?.success,
+    };
+  }
+  return {
+    STATUS_CODE: validationResult.errorResponse?.status ?? 200,
+    code: validationResult.errorResponse?.code,
+    success: validationResult.errorResponse?.success,
+  };
 }

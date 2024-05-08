@@ -1,14 +1,9 @@
 import { STATUS_CODE, code, STATUS } from "../../../../constants/constant";
 import { Request, Response } from "express";
 import { Setting } from "../../models/setting.model";
-import { postRequest } from "../../../../utils/validationUtils";
+import { validateFields, Field } from "../../../../utils/util";
 import dotenv from "dotenv";
 dotenv.config({ path: "../../../../../env/.env" });
-
-interface Field {
-  name: string;
-  type: "string" | "number" | "boolean" | "object"; // Adjust as needed for other types
-}
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
@@ -19,29 +14,24 @@ export async function get(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+    return res.status(500).json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
 
 export async function update(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
+    let requiredFields: Field[] = [
       { name: "_id", type: "string" },
       { name: "update", type: "object" },
-    ];
+    ],vali;
 
-    const validationResult = postRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
+     vali = await validateFields(req, res, requiredFields);
+    if (!vali.success) {
+      return res.status(vali.STATUS_CODE).json({
+        code: vali.code,
+        success: vali.success,
       });
     }
-
     const { update, _id } = req.body;
 
     await Setting.findByIdAndUpdate({ _id }, update);
@@ -51,9 +41,6 @@ export async function update(req: Request, res: Response): Promise<any> {
       success: STATUS.True,
     });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(STATUS_CODE.ERROR)
-      .json({ code: code.Internal_server_error, success: STATUS.False });
+    return res.status(500).json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }

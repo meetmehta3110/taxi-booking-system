@@ -17,6 +17,7 @@ export enum code {
   Youre_unapproved = 7,
   Invalid_password = 8,
   Invalid_or_missing_parameter = 9,
+  Right_parameter = 9,
   Invalid_request = 10,
   Detail_add_successfully = 11,
   Your_subscriptions_is_over = 12,

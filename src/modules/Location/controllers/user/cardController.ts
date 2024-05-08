@@ -9,11 +9,28 @@ import { Request, Response } from "express";
 import dotenv from "dotenv";
 import { Setting, SettingnDocument } from "../../models/setting.model";
 import { error } from "console";
-import {addTestCardToCustomer,getAllCards,deleteCard,changeDefaultCard} from "../../../../utils/util"
+import {
+  addTestCardToCustomer,
+  getAllCards,
+  deleteCard,
+  changeDefaultCard,
+} from "../../../../utils/util";
 dotenv.config({ path: "../../../../../env/.env" });
 interface Field {
   name: string;
   type: "string" | "number" | "boolean"; // Adjust as needed for other types
+}
+
+async function handleErrorResponse(
+  res: Response,
+  validationResult: any
+): Promise<Response> {
+  const errorResponse = validationResult.errorResponse;
+  const status = errorResponse?.status ?? 200;
+  const codeValue = errorResponse?.code;
+  const successValue = errorResponse?.success;
+
+  return res.status(status).json({ code: codeValue, success: successValue });
 }
 
 export async function remove(req: Request, res: Response): Promise<any> {
@@ -26,10 +43,7 @@ export async function remove(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
-      });
+      return await handleErrorResponse(res, validationResult);
     }
 
     const { stripeCustomerId, stripeCardId } = req.body;
@@ -42,7 +56,6 @@ export async function remove(req: Request, res: Response): Promise<any> {
       })
       .catch((error) => {
         console.log(error);
-
         return res.status(STATUS_CODE.ERROR).json({
           code: code.Internal_server_error,
           success: STATUS.False,
@@ -55,6 +68,7 @@ export async function remove(req: Request, res: Response): Promise<any> {
       .json({ code: code.Internal_server_error, success: STATUS.False });
   }
 }
+
 export async function setdefault(req: Request, res: Response): Promise<any> {
   try {
     const requiredFields: Field[] = [
@@ -65,10 +79,7 @@ export async function setdefault(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
-      });
+      return await handleErrorResponse(res, validationResult);
     }
 
     const { stripeCustomerId, stripeCardId } = req.body;
@@ -76,7 +87,8 @@ export async function setdefault(req: Request, res: Response): Promise<any> {
     await changeDefaultCard(stripeCustomerId, stripeCardId);
 
     return res.status(200).json({
-      code: code.change_defaul_card,success:STATUS.True
+      code: code.change_defaul_card,
+      success: STATUS.True,
     });
   } catch (err) {
     console.log(err);
@@ -87,8 +99,6 @@ export async function setdefault(req: Request, res: Response): Promise<any> {
   }
 }
 
-
-
 export async function get(req: Request, res: Response): Promise<any> {
   try {
     const requiredFields: Field[] = [
@@ -98,10 +108,7 @@ export async function get(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
-      });
+      return await handleErrorResponse(res, validationResult);
     }
     const stripeCustomerId = req.body.stripeCustomerId;
     getAllCards(stripeCustomerId).then(async (cards) => {
@@ -137,10 +144,7 @@ export async function add(req: Request, res: Response): Promise<any> {
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        success: validationResult.errorResponse?.success,
-      });
+      return await handleErrorResponse(res, validationResult);
     }
     const stripeCustomerId = req.body.stripeCustomerId;
     let card = await addTestCardToCustomer(stripeCustomerId, "");
