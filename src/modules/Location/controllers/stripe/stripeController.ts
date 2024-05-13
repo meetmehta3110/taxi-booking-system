@@ -65,7 +65,7 @@ export async function createCheckoutSession(
         status: STATUS.False,
       });
     }
-    console.log(sid);
+
 
     const findSubscription: UserDocument | null = await User.findOne(
       {

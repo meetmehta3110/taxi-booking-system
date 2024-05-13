@@ -162,7 +162,7 @@ export async function add(req: Request, res: Response): Promise<any> {
       symbol,
     } = req.body;
     currency = currency.toLowerCase();
-    console.log(currency);
+
 
     //velideate pricing and subscriptions
     let findal_status = true;

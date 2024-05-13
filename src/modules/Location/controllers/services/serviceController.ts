@@ -26,7 +26,6 @@ export async function get(req: Request, res: Response): Promise<any> {
     ],validationResult;
   
     validationResult = getRequest(req, res, requiredFields);
-    console.log("helo09o fs");
     
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status_code ?? 200).json({
@@ -65,7 +64,7 @@ export async function get(req: Request, res: Response): Promise<any> {
 
 export async function add(req: Request, res: Response): Promise<any> {
   let requiredFields: Field[] = [{ name: "service", type: "number" }],validationResult;
-  console.log("hello babay");
+
 
   validationResult = postRequest(req, res, requiredFields);
 

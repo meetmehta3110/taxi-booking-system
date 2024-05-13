@@ -34,7 +34,7 @@ export async function list(req: Request, res: Response): Promise<any> {
     const subscriptionId: ObjectId[] = subscriptionIds.map(
       (item) => item.subscriptionId
     );
-    console.log(subscriptionId);
+
 
     const data = await Subscription.aggregate([
       {
@@ -184,7 +184,7 @@ export async function usage(req: Request, res: Response): Promise<any> {
         },
       },
     ]);
-    console.log({ userId });
+ 
 
     res.status(STATUS_CODE.SUCCESS).json({
       data: data,
@@ -221,7 +221,6 @@ export async function cancel(req: Request, res: Response): Promise<any> {
       { buySubscriptionList: { $elemMatch: { subscriptionId: sid } } }
     );
     if (user) {
-      console.log(user);
       const obbjeccancel = user.buySubscriptionList[0]._id;
       const stripesubscriptionId =
         user.buySubscriptionList[0].stripesubscriptionId;
@@ -234,7 +233,7 @@ export async function cancel(req: Request, res: Response): Promise<any> {
           stripesubscriptionId
         );
 
-        console.log(subscription);
+  
         if (subscription.status == stripe_status.cancel) {
           await User.updateOne(
             { _id: uid }, // Match the document by its _id
