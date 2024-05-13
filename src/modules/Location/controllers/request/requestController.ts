@@ -5,6 +5,7 @@ import {
   STATUS,
   SERVICES,
   message_db,
+  product
 } from "../../../../../src/constants/constant";
 import { Request, Response } from "express";
 import { User } from "../../models/user.model";
@@ -24,7 +25,7 @@ export async function twilioSendSms(req: Request, res: Response): Promise<any> {
   try {
     const requTime: Date = new Date();
 
-    const productId = req.path.substring(1); // Assuming SERVICES.Twillo is defined elsewhere
+    const productId = product.twillo; // Assuming SERVICES.Twillo is defined elsewhere
 
     const uid = req.body.uid;
 

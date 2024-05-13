@@ -22,7 +22,7 @@ dotenv.config({ path: "../../../../../env/.env" });
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
-    const data = await Product.find({});
+    const data = await Price.find({});
     return res.status(STATUS_CODE.SUCCESS).json({
       code: code.Request_process_successfully,
       data: data,
@@ -53,8 +53,9 @@ export async function add(req: Request, res: Response): Promise<any> {
       });
     }
 
-    const { productId, unit_amount, currency, interval, stripeProductId } =
+    let { productId, unit_amount, currency, interval, stripeProductId } =
       req.body;
+      currency=currency.toLowerCase();
     if (
       interval < subscriptionTypes.subscription_start ||
       interval > subscriptionTypes.subscription_end

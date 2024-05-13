@@ -21,13 +21,13 @@ interface Field {
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [
-      { name: "uid", type: "string" },
+    let requiredFields: Field[] = [
       { name: "service", type: "string" },
-    ];
-
-    const validationResult = getRequest(req, res, requiredFields);
-
+    ],validationResult;
+  
+    validationResult = getRequest(req, res, requiredFields);
+    console.log("helo09o fs");
+    
     if (!validationResult.valid) {
       return res.status(validationResult.errorResponse?.status_code ?? 200).json({
         code: validationResult.errorResponse?.code,
@@ -64,10 +64,10 @@ export async function get(req: Request, res: Response): Promise<any> {
 }
 
 export async function add(req: Request, res: Response): Promise<any> {
-  let requiredFields: Field[] = [{ name: "service", type: "number" }];
+  let requiredFields: Field[] = [{ name: "service", type: "number" }],validationResult;
   console.log("hello babay");
 
-  const validationResult = postRequest(req, res, requiredFields);
+  validationResult = postRequest(req, res, requiredFields);
 
   if (!validationResult.valid) {
     return res.status(validationResult.errorResponse?.status_code ?? 200).json({
@@ -93,7 +93,6 @@ export async function add(req: Request, res: Response): Promise<any> {
         { name: "twilio_account_sid", type: "string" },
         { name: "twilio_number", type: "string" },
         { name: "twiml_url", type: "string" },
-        { name: "uid", type: "string" },
       ];
       update = {
         twillo: {
@@ -122,5 +121,5 @@ export async function add(req: Request, res: Response): Promise<any> {
   await User.findByIdAndUpdate({ _id: uid }, update);
   return res
     .status(STATUS_CODE.SUCCESS)
-    .json({ code: code.Detail_add_successfully, status: STATUS.True });
+    .json({ code: code.Request_process_successfully, status: STATUS.True });
 }

@@ -140,7 +140,7 @@ export async function add(req: Request, res: Response): Promise<any> {
   try {
     let requiredFields: Field[] = [
       { name: "stripeCustomerId", type: "string" },
-      //   { name: "token", type: "string" }, addd after
+        { name: "token", type: "string" },
     ],validationResult;
 
     
@@ -153,8 +153,8 @@ export async function add(req: Request, res: Response): Promise<any> {
       });
     }
 
-    const stripeCustomerId = req.body.stripeCustomerId;
-    let card = await addTestCardToCustomer(stripeCustomerId, "");
+    const {stripeCustomerId,token} = req.body;
+    let card = await addTestCardToCustomer(stripeCustomerId,token);
     if (card) {
       return res.status(STATUS_CODE.SUCCESS).json({
         code: code.Request_process_successfully,

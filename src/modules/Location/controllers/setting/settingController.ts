@@ -20,6 +20,22 @@ export async function get(req: Request, res: Response): Promise<any> {
   }
 }
 
+export async function userSettng(req: Request, res: Response): Promise<any> {
+  try {
+    const data = await Setting.findOne({},{stripe_publishable_key:1});
+    return res.status(STATUS_CODE.SUCCESS).json({
+      code: code.Request_process_successfully,
+      data: data,
+      status: STATUS.True,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ code: code.Internal_server_error, status: STATUS.False });
+  }
+}
+
+
 export async function update(req: Request, res: Response): Promise<any> {
   try {
     let requiredFields: Field[] = [

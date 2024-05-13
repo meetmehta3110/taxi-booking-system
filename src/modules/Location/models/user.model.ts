@@ -28,6 +28,9 @@ export interface UserDocument extends Document {
   };
   isLogin: boolean;
   buySubscriptionList: {
+    _id: {
+      $oid: string;
+    };
     subscriptionId: mongoose.Schema.Types.ObjectId;
     paymentStatus: number;
     stripesubscriptionId: string;

@@ -9,5 +9,3 @@ router.post("/setdefault", setdefault);
 
 export default router;
 
-
-

@@ -1,11 +1,6 @@
 import express, { Router } from "express";
 const router: Router = express.Router();
-import {
-  createCheckoutSession,
-  webhook,
-} from "../../controllers/stripe/stripeController";
-
-router.post("/create-checkout-session", createCheckoutSession);
+import { webhook } from "../../controllers/stripe/stripeController";
 
 router.post("/webhook", webhook);
 

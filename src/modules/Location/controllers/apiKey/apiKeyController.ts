@@ -19,21 +19,10 @@ interface Field {
 
 export async function get(req: Request, res: Response): Promise<any> {
   try {
-    const requiredFields: Field[] = [{ name: "uid", type: "string" }];
-
-    const validationResult = getRequest(req, res, requiredFields);
-
-    if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        status: validationResult.errorResponse?.status,
-      });
-    }
-
     const uid = req.query["uid"];
     let data = await User.findOne({ _id: uid }, { api_key: 1 });
     if (!data) {
-      throw new Error(server_log.User_not_found);
+      throw new Error(server_log.Environment_variable_is_not_defined);
     }
     let api_key = data.api_key;
     if (api_key != "") {

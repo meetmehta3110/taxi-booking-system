@@ -18,6 +18,8 @@ export interface SubscriptionDocument extends Document {
   visible: boolean;
   descriptionns: string;
   subscriptionType: number;
+  currency: string;
+  symbol: string;
 }
 
 const SubscriptionSchema: Schema<SubscriptionDocument> = new Schema(
@@ -32,6 +34,8 @@ const SubscriptionSchema: Schema<SubscriptionDocument> = new Schema(
     visible: { type: Boolean, default: false, required: true },
     subscriptionType: { type: Number, required: true },
     descriptionns: { type: String, default: "" },
+    currency: { type: String, default: "" },
+    symbol: { type: String, default: "" },
   },
   {
     timestamps: true,

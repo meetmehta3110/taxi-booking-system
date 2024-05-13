@@ -391,7 +391,7 @@ export async function addTestCardToCustomer(customerId: string, token: any) {
     const stripe = require("stripe")(setting.stripe_secret_key);
 
     const source = await stripe.customers.createSource(customerId, {
-      source: "tok_visa",
+      source: token,
     });
     return source;
   } catch (error) {

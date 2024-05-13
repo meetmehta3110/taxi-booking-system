@@ -1,8 +1,10 @@
+const ObjectId = require("mongodb").ObjectId;
 import {
   STATUS_CODE,
   code,
   STATUS,
   server_log,
+  stripe_status,
 } from "../../../../constants/constant";
 import { Request, Response } from "express";
 import {
@@ -27,26 +29,28 @@ export async function createCheckoutSession(
   res: Response
 ): Promise<any> {
   try {
-    const requiredFields: Field[] = [
-      { name: "uid", type: "string" },
-      { name: "sid", type: "string" },
-    ];
+    const requiredFields: Field[] = [{ name: "sid", type: "string" }];
 
     const validationResult = postRequest(req, res, requiredFields);
 
     if (!validationResult.valid) {
-      return res.status(validationResult.errorResponse?.status_code ?? 200).json({
-        code: validationResult.errorResponse?.code,
-        status: validationResult.errorResponse?.status,
-      });
+      return res
+        .status(validationResult.errorResponse?.status_code ?? 200)
+        .json({
+          code: validationResult.errorResponse?.code,
+          status: validationResult.errorResponse?.status,
+        });
     }
 
     let items: any = [];
     const { sid, uid } = req.body;
+
     const subscription: SubscriptionDocument | null =
       await Subscription.findOne({ _id: sid });
 
     if (!subscription) {
+      console.log(server_log.Envalide_subscription);
+
       throw error(server_log.Envalide_subscription);
     }
 
@@ -54,12 +58,30 @@ export async function createCheckoutSession(
       { _id: uid },
       { _id: 0, stripeCustomerId: 1 }
     );
+
     if (!findCard) {
       return res.status(STATUS_CODE.ERROR).json({
-        code: code.Internal_server_error,
+        code: code.User_not_found,
         status: STATUS.False,
       });
     }
+    console.log(sid);
+
+    const findSubscription: UserDocument | null = await User.findOne(
+      {
+        _id: uid,
+        "buySubscriptionList.subscriptionId": sid,
+      },
+      { _id: 1 }
+    );
+
+    if (findSubscription) {
+      return res.status(STATUS_CODE.SUCCESS).json({
+        code: code.You_allReady_have_this_subscriptions,
+        status: STATUS.False,
+      });
+    }
+
     const getCard = await getAllCards(findCard.stripeCustomerId);
 
     if (getCard.length == 0) {
@@ -150,7 +172,10 @@ export async function webhook(req: Request, res: Response): Promise<any> {
     const subscriptionId =
       payload.data.object.subscription_details.metadata.subscriptionId;
     const uid = payload.data.object.subscription_details.metadata.uid;
-    if (payloadType == "invoice.payment_succeeded" && status == "paid") {
+    if (
+      payloadType == stripe_status.payloadType &&
+      status == stripe_status.status
+    ) {
       const query = {
         _id: uid,
         "buySubscriptionList.stripesubscriptionId": StripeSubscriptionId,

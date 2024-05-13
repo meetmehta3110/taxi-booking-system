@@ -77,7 +77,6 @@ export async function update(req: Request, res: Response): Promise<any> {
   try {
     let requiredFields: Field[] = [
         { name: "_id", type: "string" },
-        { name: "productId", type: "string" },
         { name: "update", type: "object" },
       ],
       vali;

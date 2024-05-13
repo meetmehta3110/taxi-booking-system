@@ -64,10 +64,16 @@ const middleware = (req: Request, res: Response, next: NextFunction) => {
               });
             } else {
               if (
-                resultMatch &&
-                resultMatch[1] === ROUTES.User_services_access
+                (resultMatch &&
+                  resultMatch[1] === ROUTES.User_services_access) ||
+                (resultMatch && resultMatch[1] != ROUTES.Admin_services_access)
               ) {
-                (req as any).body.uid = user.uid;
+                if (req.method === "GET") {
+                  
+                  (req as any).query.uid = user.uid;
+                } else {
+                  (req as any).body.uid = user.uid;
+                }
               }
               next();
             }

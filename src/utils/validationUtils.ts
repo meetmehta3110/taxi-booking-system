@@ -56,7 +56,7 @@ export const getRequest = (
       return {
         valid: false,
         errorResponse: {
-          status_code: STATUS_CODE.ERROR,
+          status_code: STATUS_CODE.SUCCESS,
           code: code.Invalid_or_missing_parameter,
           status: STATUS.False,
         },
