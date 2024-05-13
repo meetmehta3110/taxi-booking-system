@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-import { validateFields, Field } from "../../../../utils/util";
+import { Field } from "../../../../utils/util";
 import {
   STATUS_CODE,
   code,
@@ -14,7 +14,7 @@ import { User, UserDocument } from "../../models/user.model";
 import { Subscription } from "../../models/subscription.model";
 
 import dotenv from "dotenv";
-import { isObjectIdOrHexString, ObjectId } from "mongoose";
+import { ObjectId } from "mongoose";
 import { postRequest } from "../../../../utils/validationUtils";
 import { Setting, SettingnDocument } from "../../models/setting.model";
 dotenv.config({ path: "../../../../../env/.env" });

@@ -11,8 +11,6 @@ import {
   days,
   STATUS,
   server_log,
-  code,
-  STATUS_CODE,
 } from "../constants/constant";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
