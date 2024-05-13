@@ -35,8 +35,7 @@ PAYMENT_CANCEL_URL=https://cdn.dribbble.com/users/318828/screenshots/6521954/15_
 -> run npm i command
 
 -> for stripe add webhuk in stripe dashboard https://yourdomainname/stripe/webhook without stripe user Cant register
-add two event
-checkout.session.completed
+add one  event
 invoice.payment_succeeded
 
 
