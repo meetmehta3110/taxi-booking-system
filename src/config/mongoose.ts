@@ -15,6 +15,8 @@ export const connectToDB = async (): Promise<typeof mongoose> => {
     }
 
     const uri = process.env.LOCATION_DB_URI; //Mongodb url
+    console.log(uri);
+
     const dbConnection = await mongoose.connect(uri); //Mongodb Connectd Successfully
     await initialData();
     return dbConnection;

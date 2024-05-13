@@ -40,3 +40,4 @@ checkout.session.completed
 invoice.payment_succeeded
 
 
+docker build . 

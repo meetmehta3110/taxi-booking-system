@@ -152,24 +152,24 @@ export async function add_default_admin() {
   const admin = await Admin.find({});
 
   if (admin.length == 0) {
-    const { username, email, password, phone, phoneCode, isApprove } =
+    const { USERNAME, EMAIL, PASSWORD, PHONE, PHONECODE, isApprove } =
       process.env; //if your username is set in globle env they first take from it
     console.log({
       default_admin_Detail: {
-        username,
-        email,
-        password,
-        phone,
-        phoneCode,
+        USERNAME,
+        EMAIL,
+        PASSWORD,
+        PHONE,
+        PHONECODE,
       },
     });
-    const hashedPassword = await bcrypt.hash(password ?? "123456", 10);
+    const hashedPassword = await bcrypt.hash(PASSWORD ?? "123456", 10);
     const newAdmin = new Admin({
-      username,
-      email,
+      username: USERNAME,
+      email: EMAIL,
       password: hashedPassword,
-      phone,
-      phoneCode,
+      phone: PHONE,
+      phoneCode: PHONECODE,
       isApprove,
     });
     newAdmin.save();

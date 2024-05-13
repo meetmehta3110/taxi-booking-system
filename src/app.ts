@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import { server_log } from "./constants/constant";
 // Load environment variables from .env file
 dotenv.config({ path: "./env/.env" });
-
 import { connectToDB } from "./config/mongoose";
 
 /**
